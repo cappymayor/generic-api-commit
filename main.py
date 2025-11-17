@@ -1,57 +1,62 @@
+import requests
 import csv
 
-import requests
-
-API_KEY = "e58deace-2a4d-4355-8b07-f225eaf5b467"
+API_KEY = " e58deace-2a4d-4355-8b07-f225eaf5b467"
 BASE_URL = "https://content.guardianapis.com/search"
-#function to fetch articles
-def fetch_all_articles(query):
+
+
+def fetch_all_articles(query, max_pages=2):
+    """Fetch all articles for a given query from the Guardian API."""
     page = 1
     all_results = []
-#pagination loop
+
     while True:
         try:
             params = {
                 "q": query,
-                "api-key": API_KEY,
+                "api-key":  "e58deace-2a4d-4355-8b07-f225eaf5b467",
                 "page": page,
                 "page-size": 50,
                 "show-fields": "headline,bodyText"
             }
-#api request parameters
+
             response = requests.get(BASE_URL, params=params, timeout=10)
             response.raise_for_status()
             data = response.json()
-#responses
+
             results = data["response"]["results"]
             all_results.extend(results)
 
             print(f"Fetched page {page}")
 
-            if page >= data["response"]["pages"]:
+            if page >= data["response"]["pages"] or page >= max_pages:
                 break
-            
+
             page += 1
-#except case
+
         except requests.exceptions.RequestException as e:
             print(f"Error occurred: {e}")
             break
 
     return all_results
 
-# Fetch articles on Russia–Ukraine war
-articles = fetch_all_articles("Russia Ukraine war")
+
+# Fetch articles
+articles = fetch_all_articles("Russia Ukraine war", max_pages=2)
 print(f"Total articles fetched: {len(articles)}")
 
-# Save articles to CSV
-csv_file = "russia_ukraine_articles.csv"
-with open(csv_file, mode="w", newline="", encoding="utf-8") as file:
-    writer = csv.writer(file)
-    writer.writerow(["Headline", "Body"])  # CSV header
+
+# Save to CSV
+with open("guardian_articles.csv", "w", newline="", encoding="utf-8") as csvfile:
+    fieldnames = ["id", "webTitle", "webUrl", "headline", "bodyText"]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
 
     for article in articles:
-        headline = article["fields"].get("headline", "")
-        body = article["fields"].get("bodyText", "")
-        writer.writerow([headline, body])
-
-print(f"Articles saved to {csv_file}")
+        writer.writerow({
+            "id": article.get("id"),
+            "webTitle": article.get("webTitle"),
+            "webUrl": article.get("webUrl"),
+            "headline": article.get("fields", {}).get("headline"),
+            "bodyText": article.get("fields", {}).get("bodyText")
+        })
