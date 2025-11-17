@@ -1,5 +1,6 @@
-import requests
 import csv
+
+import requests
 
 API_KEY = "e58deace-2a4d-4355-8b07-f225eaf5b467"
 BASE_URL = "https://content.guardianapis.com/search"
