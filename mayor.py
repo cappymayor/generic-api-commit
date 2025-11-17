@@ -1,3 +1,5 @@
-x=6
+x = 6
+
+
 def demo():
     print("hello")
