@@ -1,11 +1,15 @@
+# Standard library imports
 import csv
 
+# Third-party imports
 import requests
 
 API_KEY = "e58deace-2a4d-4355-8b07-f225eaf5b467"
 BASE_URL = "https://content.guardianapis.com/search"
 
+
 def fetch_all_articles(query):
+    """Fetch all articles from The Guardian API for a given query."""
     page = 1
     all_results = []
 
@@ -16,7 +20,7 @@ def fetch_all_articles(query):
                 "api-key": API_KEY,
                 "page": page,
                 "page-size": 50,
-                "show-fields": "headline,bodyText"
+                "show-fields": "headline,bodyText",
             }
 
             response = requests.get(BASE_URL, params=params, timeout=10)
@@ -30,7 +34,7 @@ def fetch_all_articles(query):
 
             if page >= data["response"]["pages"]:
                 break
-            
+
             page += 1
 
         except requests.exceptions.RequestException as e:
@@ -39,9 +43,11 @@ def fetch_all_articles(query):
 
     return all_results
 
+
 # Fetch articles on Russia–Ukraine war
 articles = fetch_all_articles("Russia Ukraine war")
 print(f"Total articles fetched: {len(articles)}")
+
 
 # Save articles to CSV
 csv_file = "russia_ukraine_articles.csv"
@@ -50,8 +56,8 @@ with open(csv_file, mode="w", newline="", encoding="utf-8") as file:
     writer.writerow(["Headline", "Body"])  # CSV header
 
     for article in articles:
-        headline = article["fields"].get("headline", "")
-        body = article["fields"].get("bodyText", "")
+        headline = article.get("fields", {}).get("headline", "")
+        body = article.get("fields", {}).get("bodyText", "")
         writer.writerow([headline, body])
 
 print(f"Articles saved to {csv_file}")
