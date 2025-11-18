@@ -23,8 +23,7 @@ while True:
 
     # Check if the endpoint or response format changed
     if "response" not in data:
-        print("API response format changed. Cannot find expected data.")
-        break
+        raise ValueError("API contract changed: 'response' field is missing.")
 
     # Process the data on this page
     print("Page {page} results:")
