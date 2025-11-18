@@ -1,15 +1,11 @@
 
-import os
-import requests
 import json
-from requests.exceptions import RequestException
+import os
+
 import flake8
 import isort
-
-import os
-import json
 import requests
-
+from requests.exceptions import RequestException
 
 
 def save_to_json(articles, filename="guardian_articles.json"):
