@@ -1,8 +1,9 @@
+import argparse
+import json
+
+import pandas as pd
 import requests
 import yaml
-import json
-import pandas as pd
-import argparse
 
 argparser = argparse.ArgumentParser(description="The Guardian API Data Extraction")
 argparser.add_argument("--params", 
