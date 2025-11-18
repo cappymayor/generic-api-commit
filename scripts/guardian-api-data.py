@@ -5,10 +5,16 @@ import pandas as pd
 import requests
 import yaml
 
-argparser = argparse.ArgumentParser(description="The Guardian API Data Extraction")
-argparser.add_argument("--params", 
-                       type=str, 
-                       help="Path to a JSON file containing parameters for The Guardian API")
+argparser = argparse.ArgumentParser(
+    description="The Guardian API Data Extraction"
+    )
+argparser.add_argument(
+    "--params",
+    type=str,
+    help="Path to a JSON file containing parameters for The Guardian API"
+    )
+
+
 class TheGuardianAPI:
     """
     A class to interact with The Guardian API and fetch articles.
@@ -19,8 +25,11 @@ class TheGuardianAPI:
     def __init__(self, **params):
         self.params = params
 
-    # Extract all pages from url and return as pandas dataframe after selecting fields of interest
-    def get_articles_dataframe(self, base_url, api_key, request_parameters, max_pages=None):
+    # Extract all pages from the URL and return as a pandas DataFrame
+    # after selecting fields of interest
+    def get_articles_dataframe(
+        self, base_url, api_key, request_parameters, max_pages=None
+    ):
         """
         Fetch articles from The Guardian API and return as a pandas DataFrame.
 
@@ -45,7 +54,6 @@ class TheGuardianAPI:
             except Exception as e:
                 print(f"An error occurred while making the request: {e}")
                 raise
-            
             if response.status_code != 200:
                 print(f"API request failed with status {response.status_code}")
                 break
@@ -55,7 +63,6 @@ class TheGuardianAPI:
                 max_page = max_pages
             data = response.json()
             articles = data.get("response", {}).get("results", [])
-            
             if not articles:
                 break
 
@@ -67,16 +74,19 @@ class TheGuardianAPI:
                     "byline": fields.get("byline", ""),
                     "publication": fields.get("publication", ""),
                     "webUrl": article.get("webUrl", ""),
-                    "webPublicationDate": article.get("webPublicationDate", ""),
+                    "webPublicationDate": article.get(
+                        "webPublicationDate", ""
+                    ),
                 }
                 all_articles.append(formatted_article)
 
             print(f"Fetched page {page} of {max_page}")
             page += 1
             if page > max_page:
-                break # Exiting the loop if we've reached the max pages
+                break  # Exiting the loop if we've reached the max pages
 
         return pd.DataFrame(all_articles)
+
 
 def load_params(file_path):
     try:
@@ -89,6 +99,7 @@ def load_params(file_path):
         print(f"File not found: {file_path}: {e}")
         raise
 
+
 def main():
     args = argparser.parse_args()
     if not args.params:
@@ -96,13 +107,16 @@ def main():
     params = load_params(args.params)
     guardian_job = TheGuardianAPI()
     if "config" not in params or "request_params" not in params:
-        raise KeyError("The JSON file must contain a 'config' or 'request_params' key.")
+        raise KeyError("The JSON file must contain a 'config' or "
+                       "'request_params' key.")
     config = params["config"]
-    df = guardian_job.get_articles_dataframe(base_url=config["base_url"], 
-                                             api_key=config["api_key"],
-                                             request_parameters=params["request_params"],
-                                             max_pages=config.get("max_pages", None))
+    df = guardian_job.get_articles_dataframe(
+        base_url=config["base_url"],
+        api_key=config["api_key"],
+        request_parameters=params["request_params"],
+        max_pages=config.get("max_pages", None))
     print(df.head())
+
 
 if __name__ == "__main__":
     main()
