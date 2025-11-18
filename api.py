@@ -1,25 +1,24 @@
 import requests
+from dotenv import load_dotenv
+import os
+
+# Load variables from .env file
+load_dotenv()
 
 url = "https://content.guardianapis.com/search"
 params = {
     "q": "Russia-Ukraine war",
     "from-date": "2024-01-01",
     "to-date": "2025-01-05",
-    "api-key": "24398a76-63e3-496d-9d9c-a0ce71f21ce7"
+     "api-key": os.getenv("GUARDIAN_API_KEY")
 }
 
 page = 1
 
 while True:
     params["page"] = page
-
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        print("Request failed: {e}")
-        break
+    response = requests.get(url, params=params)
+    data = response.json()
 
     # Check if the endpoint or response format changed
     if "response" not in data:
