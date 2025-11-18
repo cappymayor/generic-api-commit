@@ -10,7 +10,7 @@ params = {
     "q": "Russia-Ukraine war",
     "from-date": "2024-01-01",
     "to-date": "2025-01-05",
-     "api-key": os.getenv("GUARDIAN_API_KEY")
+    "api-key": os.getenv("GUARDIAN_API_KEY")
 }
 
 page = 1
