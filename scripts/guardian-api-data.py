@@ -1,0 +1,107 @@
+import requests
+import yaml
+import json
+import pandas as pd
+import argparse
+
+argparser = argparse.ArgumentParser(description="The Guardian API Data Extraction")
+argparser.add_argument("--params", 
+                       type=str, 
+                       help="Path to a JSON file containing parameters for The Guardian API")
+class TheGuardianAPI:
+    """
+    A class to interact with The Guardian API and fetch articles.
+
+    Attributes:
+        params (dict): Parameters for API requests.
+    """
+    def __init__(self, **params):
+        self.params = params
+
+    # Extract all pages from url and return as pandas dataframe after selecting fields of interest
+    def get_articles_dataframe(self, base_url, api_key, request_parameters, max_pages=None):
+        """
+        Fetch articles from The Guardian API and return as a pandas DataFrame.
+
+        Args:
+            base_url (str): The base URL of the API.
+            api_key (str): The API key for authentication.
+            query (str): The search query.
+            page_size (int): Number of articles per page.
+            max_pages (int, optional): Maximum number of pages to fetch.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the articles.
+        """
+        all_articles = []
+        page = 1
+        while True:
+            params = request_parameters.copy()
+            params["page"] = page
+            url = f"{base_url}?api-key={api_key}"
+            try:
+                response = requests.get(url, params=params)
+            except Exception as e:
+                print(f"An error occurred while making the request: {e}")
+                raise
+            
+            if response.status_code != 200:
+                print(f"API request failed with status {response.status_code}")
+                break
+
+            max_page = response.json().get("response", {}).get("pages", 0)
+            if max_pages is not None and max_pages < max_page:
+                max_page = max_pages
+            data = response.json()
+            articles = data.get("response", {}).get("results", [])
+            
+            if not articles:
+                break
+
+            for article in articles:
+                fields = article.get("fields", {})
+                formatted_article = {
+                    "headline": fields.get("headline", ""),
+                    "trailText": fields.get("trailText", ""),
+                    "byline": fields.get("byline", ""),
+                    "publication": fields.get("publication", ""),
+                    "webUrl": article.get("webUrl", ""),
+                    "webPublicationDate": article.get("webPublicationDate", ""),
+                }
+                all_articles.append(formatted_article)
+
+            print(f"Fetched page {page} of {max_page}")
+            page += 1
+            if page > max_page:
+                break # Exiting the loop if we've reached the max pages
+
+        return pd.DataFrame(all_articles)
+
+def load_params(file_path):
+    try:
+        with open(file_path, "r") as file:
+            return yaml.safe_load(file)
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON from {file_path}: {e}")
+        raise
+    except FileNotFoundError as e:
+        print(f"File not found: {file_path}: {e}")
+        raise
+
+def main():
+    args = argparser.parse_args()
+    if not args.params:
+        raise ValueError("The --params argument is required.")
+    params = load_params(args.params)
+    guardian_job = TheGuardianAPI()
+    if "config" not in params or "request_params" not in params:
+        raise KeyError("The JSON file must contain a 'config' or 'request_params' key.")
+    config = params["config"]
+    df = guardian_job.get_articles_dataframe(base_url=config["base_url"], 
+                                             api_key=config["api_key"],
+                                             request_parameters=params["request_params"],
+                                             max_pages=config.get("max_pages", None))
+    print(df.head())
+
+if __name__ == "__main__":
+    main()
