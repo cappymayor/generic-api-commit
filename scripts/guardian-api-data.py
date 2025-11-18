@@ -2,10 +2,10 @@ import argparse
 import json
 import os
 
-from dotenv import load_dotenv
 import pandas as pd
 import requests
 import yaml
+from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
