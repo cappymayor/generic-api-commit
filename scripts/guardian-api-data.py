@@ -1,9 +1,14 @@
 import argparse
 import json
+import os
 
+from dotenv import load_dotenv
 import pandas as pd
 import requests
 import yaml
+
+# Load environment variables from .env file
+load_dotenv()
 
 argparser = argparse.ArgumentParser(
     description="The Guardian API Data Extraction"
@@ -12,6 +17,13 @@ argparser.add_argument(
     "--params",
     type=str,
     help="Path to a JSON file containing parameters for The Guardian API"
+    )
+
+argparser.add_argument(
+    "--max_pages",
+    type=str,
+    default=None,
+    help="Max pages to be processed by the script"
     )
 
 
@@ -105,16 +117,21 @@ def main():
     if not args.params:
         raise ValueError("The --params argument is required.")
     params = load_params(args.params)
+    max_pages = args.max_pages
     guardian_job = TheGuardianAPI()
     if "config" not in params or "request_params" not in params:
         raise KeyError("The JSON file must contain a 'config' or "
                        "'request_params' key.")
     config = params["config"]
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        raise ValueError("API_KEY is not set in the environment variables.")
+
     df = guardian_job.get_articles_dataframe(
         base_url=config["base_url"],
-        api_key=config["api_key"],
+        api_key=api_key,
         request_parameters=params["request_params"],
-        max_pages=config.get("max_pages", None))
+        max_pages=int(max_pages) if max_pages else None)
     print(df.head())
 
 

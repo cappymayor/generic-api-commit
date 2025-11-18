@@ -1,7 +1,5 @@
 config:
   base_url: "https://content.guardianapis.com/search"
-  api_key: "d70c305e-6d11-495a-abf3-00de9615c945"
-  max_pages: 10
 
 request_params:
   q: "Russia-Ukraine war"
