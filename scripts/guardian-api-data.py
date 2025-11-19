@@ -53,12 +53,10 @@ def get_articles_dataframe(
         url = f"{base_url}?api-key={api_key}"
         try:
             response = requests.get(url, params=params)
+            response.raise_for_status()
         except Exception as e:
             print(f"An error occurred while making the request: {e}")
             raise
-        if response.status_code != 200:
-            print(f"API request failed with status {response.status_code}")
-            break
 
         max_page = response.json().get("response", {}).get("pages", 0)
         if max_pages is not None and max_pages < max_page:
