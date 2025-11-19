@@ -1,0 +1,8 @@
+config:
+  base_url: "https://content.guardianapis.com/search"
+
+request_params:
+  q: "Russia-Ukraine war"
+  from-date: "2024-01-01"
+  page-size: 10
+  show-fields: "headline,trailText,byline,publication"
