@@ -4,69 +4,58 @@ import os
 
 import requests
 
+BASE_URL = "https://content.guardianapis.com/search"
+
 
 def save_to_json(articles, filename="guardian_articles.json"):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(articles, f, indent=4, ensure_ascii=False)
 
-    print(f"Saved JSON file: {filename}")
+    print(f"save_guardian_articles_to_json: {filename}")
 
 
 def main():
     api_key = os.getenv("GUARDIAN_API_KEY")
-
-    if not api_key:
-        raise ValueError("ERROR: GUARDIAN_API_KEY not set.")
-
-    end_point_url = "https://content.guardianapis.com/search"
+    if api_key is None:
+        raise ValueError("GUARDIAN_API_KEY is missing")
 
     params = {
         "api-key": api_key,
         "q": "Russia Ukraine war",
         "page-size": 50,
-        "from-date": "2024-01-01",
-        "to-date": "2025-01-30",
-        "page": 1
+        "from-date": "2025-01-01",
+        "to-date": "2025-01-30"
     }
 
     print("Sending first request to Guardian API...")
 
-    response = requests.get(end_point_url, params=params)
+    params["page"] = 1
+    response = requests.get(BASE_URL, params=params)
+
+    if response.status_code == 401:
+        raise ValueError("Invalid API key")
     if response.status_code != 200:
-        print("API returned an error:", response.status_code)
+        print("API returned an error:", response.status_code())
         raise Exception("Stopping execution due to API error.")
-
-    try:
-        data = response.json()
-    except Exception:
-        raise ValueError("Response is not valid JSON.")
-    if "response" not in data or "pages" not in data["response"]:
-        raise KeyError("Missing 'response' or 'pages' in API data.")
-
-    total_pages = data["response"]["pages"]
+    data = response.json()
+    total_pages = data["response"].get("pages", 1)
     print(f"Total pages available: {total_pages}")
+
     all_articles = []
-    for page in range(1, total_pages + 1):
-        print(f"Fetching page {page} of {total_pages}...")
-
+    page = 1
+    while page <= total_pages:
+        print(f"Fetching page {page}...")
         params["page"] = page
-
-        response = requests.get(end_point_url, params=params)
+        response = requests.get(BASE_URL, params=params)
 
         if response.status_code != 200:
-            print(f"Error on page {page}: {response.status_code}")
+            print(f"Error on page {page}: {response.status_code()}")
             raise Exception("API error during pagination.")
 
-        try:
-            data = response.json()
-        except Exception:
-            raise ValueError(f"Page {page}: Failed to decode JSON.")
-
-        if "response" not in data or "results" not in data["response"]:
-            raise KeyError(f"Page {page}: Unexpected response structure.")
-
+        data = response.json()
         results = data["response"]["results"]
         all_articles.extend(results)
+        page += 1
 
     print(f"Finished! Total articles fetched: {len(all_articles)}")
 
