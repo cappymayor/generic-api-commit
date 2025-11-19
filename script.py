@@ -4,30 +4,8 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
-
-def api_paginator(url, params):
-    response = requests.get(url, params)
-
-    if response.status_code == 200:
-        data = response.json()
-        all_results = []
-
-        while params["page"] <= data['response']['pages']:
-            next_page = requests.get(url, params)
-            more_news = next_page.json()
-
-            all_results.extend(more_news['response']['results'])
-            params["page"] += 1
-
-        dataset = pd.DataFrame(all_results)
-        return dataset
-
-    else:
-        response.raise_for_status()
-
-
 load_dotenv()
-BASE_URL = os.environ.get("BASE_URL")
+url = os.environ.get("BASE_URL")
 
 params = {
     "q": "AI",
@@ -37,5 +15,28 @@ params = {
     "api-key": os.environ.get("API_KEY")
 }
 
-dataframe = api_paginator(BASE_URL, params)
+total_pages = 1
+
+
+def api_paginator(url, params, total_pages):
+    all_results = []
+
+    while params["page"] <= total_pages:
+        response = requests.get(url, params)
+
+        if response.status_code == 200:
+            news = response.json()
+            total_pages = news['response']['pages']
+
+            all_results.extend(news['response']['results'])
+            params["page"] += 1
+
+        else:
+            response.raise_for_status()
+
+    dataset = pd.json_normalize(all_results)
+    return dataset
+
+
+dataframe = api_paginator(url, params, total_pages)
 print(dataframe)
