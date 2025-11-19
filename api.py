@@ -16,23 +16,31 @@ params = {
 
 page = 1
 
+# Store all results
+all_results = []
+
 while True:
     params["page"] = page
     response = requests.get(url, params=params)
+
+    # Handle any status code that is not 200
+    if response.status_code != 200:
+        msg = (
+            f"Request failed with status {response.status_code}: "
+            f"{response.text}"
+        )
+        raise Exception(msg)
+
     data = response.json()
 
-    # Check if the endpoint or response format changed
-    if "response" not in data:
-        raise ValueError("API contract changed: 'response' field is missing.")
+    # Collect data from this page
+    results = data["response"]["results"]
+    all_results.extend(results)
 
-    # Process the data on this page
-    print("Page {page} results:")
-    print(data["response"]["results"])
-
-    # Stop when you reach the last page
-    if data["response"]["currentPage"] >= data["response"]["pages"]:
+    # Stop AFTER processing if it's the last page
+    if data["response"]["currentPage"] == data["response"]["pages"]:
         break
 
     page += 1
 
-print("Finished fetching all pages.")
+print(f"Total results fetched: {len(all_results)}")
