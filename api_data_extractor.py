@@ -1,6 +1,5 @@
-import requests
-
 import pandas as pd
+import requests
 
 import access_key
 
@@ -38,8 +37,7 @@ while current_page <= total_pages:
         
         current_page += 1
         
-print(len(container))
+print(f"Total recored processed: {len(container)}")
 
 df = pd.json_normalize(container)
 df.to_csv("data/Russ_Ukr_war_Update.csv")
-
