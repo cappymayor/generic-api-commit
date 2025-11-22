@@ -1,5 +1,4 @@
 import pandas as pd
-
 import requests
 
 url = "https://randomuser.me/api/?results=100"
