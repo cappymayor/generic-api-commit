@@ -3,10 +3,11 @@ import requests
 
 url = "https://randomuser.me/api/?results=100"
 
+
 def female():
     response = requests.get(url)
     data = response.json()
-    data.keys() # to get the keys present in the dict.
+    data.keys() 
     results = data["results"]
 
     females = []
@@ -15,7 +16,10 @@ def female():
         females.append(i)
 
     data= pd.json_normalize(females)
+
     return data
 
+
 dataframe = female()
+
 print(dataframe)
