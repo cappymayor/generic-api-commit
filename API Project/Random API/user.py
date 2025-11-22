@@ -12,7 +12,7 @@ def female():
 
     females = []
     for i in results:
-     if i["gender"] =="female" and i["dob"]['age'] < 43 :
+      if i["gender"] == "female" and i["dob"]["age"] < 43:
         females.append(i)
 
     data= pd.json_normalize(females)
