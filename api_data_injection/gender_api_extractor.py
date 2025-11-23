@@ -5,27 +5,29 @@ url = "https://randomuser.me/api/"
 params = {
     'results': 100
     }
-df = []
+filtered_data = []
 
 
 def gender_api():
     '''
     The function returns female data from the API with age
-    equal to 40 and above'''
+    equal to 40 and above
+    '''
 
     response = requests.get(url=url, params=params)
     if response.status_code != 200:
-        print(response.raise_for_status())
-    else:
-        results = response.json()['results']
-        print(len(results))
+        response.raise_for_status()
+
+    results = response.json()['results']
+    print(f"Total Api records: {len(results)}") 
+
 
     for article in results:
         gender = article['gender']
         age = article['dob']['age']
         if age >= 40 and gender == 'female':
-            df.append(article)
-    return df
+            filtered_data.append(article)
+    return filtered_data
 
 
 data = pd.json_normalize(gender_api())
