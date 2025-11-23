@@ -10,12 +10,15 @@ df = []
 
 def gender_api():
     '''
-    This functio extract female date from the API with age e
+    This functio extract female data from the API with age
     equal to 40 ad above'''
 
     response = requests.get(url=url, params=params)
-    results = response.json()['results']
-    print(len(results))
+    if response.status_code != 200:
+        print(response.raise_for_status())
+    else:
+        results = response.json()['results']
+        print(len(results))
 
     for article in results:
         gender = article['gender']
@@ -26,6 +29,6 @@ def gender_api():
 
 
 data = pd.json_normalize(gender_api())
-data.to_csv("data/new_gender.csv")
+data.to_csv("data/female_data.csv")
 
 print(len(data))
