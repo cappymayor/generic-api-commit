@@ -17,12 +17,16 @@ results = new_data['results']
 total_results = len(results)
 print(total_results)
 
+def gender_api():
+    df = []
+    for i in results:
+        if 'dob' in i:
+            if i['dob']['age'] >= 40:
+                df.append(i)
+    return df
 
-df = []
-for i in results:
-    if 'dob' in i:
-        if i['dob']['age'] >= 40:
-            df.append(i)
 
-data = pd.json_normalize(df)
+data = pd.json_normalize(gender_api())
+data.to_csv("data/new_gender.csv")
+
 print(len(data))
