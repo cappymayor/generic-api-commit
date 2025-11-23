@@ -31,4 +31,4 @@ def gender_api():
 data = pd.json_normalize(gender_api())
 data.to_csv("data/female_data.csv")
 
-print(len(data))
+print(f"Total processed Record: {len(data)}")
