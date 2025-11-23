@@ -10,8 +10,8 @@ df = []
 
 def gender_api():
     '''
-    This functio extract female data from the API with age
-    equal to 40 ad above'''
+    The function returns female data from the API with age
+    equal to 40 and above'''
 
     response = requests.get(url=url, params=params)
     if response.status_code != 200:
