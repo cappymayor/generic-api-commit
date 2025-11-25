@@ -1,7 +1,8 @@
-import requests
-import pandas as pd
 import logging
 import os
+
+import pandas as pd
+import requests
 
 logging.basicConfig(
     level=logging.INFO,
