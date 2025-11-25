@@ -5,8 +5,7 @@ import os
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    force=True  # <-- REQUIRED IN COLAB
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 
 api_key = os.getenv("GUARDIAN_API_KEY")
