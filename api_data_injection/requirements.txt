@@ -1,0 +1,4 @@
+pandas==2.2.3
+requests==2.32.3
+flake8==3.7.9
+isort==4.3.21
