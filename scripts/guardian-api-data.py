@@ -5,10 +5,6 @@ import os
 import pandas as pd
 import requests
 import yaml
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
 
 argparser = argparse.ArgumentParser(
     description="The Guardian API Data Extraction"
@@ -119,7 +115,14 @@ def main():
         api_key=api_key,
         request_parameters=params["request_params"],
         max_pages=int(max_pages) if max_pages else None)
+    
+    print("The first few rows of the fetched articles:\n\n\n")
     print(df.head())
+
+    print(f"\n\n\nTotal articles fetched: {len(df)}")
+    print(f"\n\nSaving articles to '/data/guardian_articles.csv'")
+    df.to_csv("/data/guardian_articles.csv", index=False)
+    print("\nArticles saved successfully.")
 
 
 if __name__ == "__main__":
